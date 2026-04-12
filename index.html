@@ -6,45 +6,66 @@
 <title>Kindle Dashboard</title>
 
 <style>
-body {
-  font-family: sans-serif;
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* スクロール禁止 */
   background: #fff;
   color: #000;
-  margin: 0;
-  padding: 10px;
+  font-family: sans-serif;
 }
 
-/* Kindle最適 */
+/* 全体を1画面に収める */
 .container {
-  max-width: 600px;
-  margin: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
-h1 {
-  font-size: 22px;
-  border-bottom: 2px solid #000;
-  margin-bottom: 10px;
-}
-
-.section {
-  margin-bottom: 20px;
-}
-
-.item {
-  margin-bottom: 8px;
-  font-size: 16px;
-}
-
-/* 日付 */
-.date {
+/* ヘッダー */
+.header {
   font-size: 18px;
-  margin-bottom: 10px;
+  text-align: center;
+  margin-bottom: 5px;
 }
 
-/* 自動更新表示 */
-.refresh {
-  font-size: 12px;
-  color: #666;
+/* メインを上下分割 */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* セクション */
+.section {
+  flex: 1;
+}
+
+/* タイトル */
+.title {
+  font-size: 16px;
+  border-bottom: 1px solid #000;
+  margin-bottom: 4px;
+}
+
+/* アイテム */
+.item {
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* フッター */
+.footer {
+  font-size: 11px;
+  text-align: right;
 }
 </style>
 </head>
@@ -52,40 +73,42 @@ h1 {
 <body>
 <div class="container">
 
-  <div class="date" id="date"></div>
+  <div class="header" id="date"></div>
 
-  <div class="section">
-    <h1>予定</h1>
-    <div id="calendar"></div>
+  <div class="main">
+
+    <div class="section">
+      <div class="title">予定</div>
+      <div id="calendar"></div>
+    </div>
+
+    <div class="section">
+      <div class="title">TODO</div>
+      <div id="todo"></div>
+    </div>
+
   </div>
 
-  <div class="section">
-    <h1>TODO</h1>
-    <div id="todo"></div>
-  </div>
-
-  <div class="refresh" id="refresh"></div>
+  <div class="footer" id="refresh"></div>
 
 </div>
 
 <script>
 
-// ===== 設定（ここだけ変更） =====
 const API_BASE = "https://weathered-art-a4cf.lapislazli23.workers.dev";
 
-// ===== 日付表示 =====
+// ===== 日付 =====
 function updateDate() {
   const now = new Date();
   document.getElementById("date").textContent =
     now.toLocaleDateString("ja-JP", {
-      weekday: "short",
-      year: "numeric",
       month: "2-digit",
-      day: "2-digit"
+      day: "2-digit",
+      weekday: "short"
     });
 }
 
-// ===== カレンダー取得 =====
+// ===== カレンダー（最大4件）=====
 async function loadCalendar() {
   const res = await fetch(API_BASE + "/calendar");
   const data = await res.json();
@@ -93,18 +116,18 @@ async function loadCalendar() {
   const el = document.getElementById("calendar");
   el.innerHTML = "";
 
-  data.forEach(e => {
+  data.slice(0, 4).forEach(e => {
     const div = document.createElement("div");
     div.className = "item";
 
-    const date = e.start.substring(0, 10);
+    const date = e.start.substring(5, 10);
     div.textContent = `${date} ${e.title}`;
 
     el.appendChild(div);
   });
 }
 
-// ===== Todo取得 =====
+// ===== Todo（最大4件）=====
 async function loadTodo() {
   const res = await fetch(API_BASE + "/todo");
   const data = await res.json();
@@ -112,7 +135,7 @@ async function loadTodo() {
   const el = document.getElementById("todo");
   el.innerHTML = "";
 
-  data.forEach(t => {
+  data.slice(0, 4).forEach(t => {
     const div = document.createElement("div");
     div.className = "item";
     div.textContent = "・" + t.content;
@@ -120,14 +143,14 @@ async function loadTodo() {
   });
 }
 
-// ===== 更新表示 =====
+// ===== 更新時間 =====
 function updateRefresh() {
   const now = new Date();
   document.getElementById("refresh").textContent =
-    "更新: " + now.toLocaleTimeString();
+    now.toLocaleTimeString();
 }
 
-// ===== 初期実行 =====
+// ===== 初期化 =====
 async function init() {
   updateDate();
   await loadCalendar();
@@ -135,9 +158,8 @@ async function init() {
   updateRefresh();
 }
 
-// ===== 自動更新（Kindle向け軽量） =====
-// 10分ごと
-setInterval(init, 10 * 60 * 1000);
+// ===== Kindle向け低頻度更新 =====
+setInterval(init, 15 * 60 * 1000);
 
 init();
 
