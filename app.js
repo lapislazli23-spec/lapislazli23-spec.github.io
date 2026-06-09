@@ -40,12 +40,16 @@ function donut(canvasId, value, color){
       }]
     },
     options:{
-      cutout:"75%",
-      plugins:{
-        legend:{display:false}
-      }
+  responsive:true,
+  maintainAspectRatio:false,
+  cutout:"75%",
+  plugins:{
+    legend:{
+      display:false
     }
-  });
+  }
+}
+       });
 }
 
 const kpiGrid = document.getElementById("kpi-grid");
@@ -58,18 +62,21 @@ kpis.forEach((kpi,index)=>{
     <div class="kpi-card">
       <div class="kpi-title">${kpi.name}</div>
 
-      <div class="chart-container">
-        <canvas id="${id}"></canvas>
-      </div>
+     <div class="chart-container kpi-chart">
+  <canvas id="${id}"></canvas>
 
-      <div class="metric">
-        ${Math.round(kpi.progress*100)}%
-      </div>
-
-      <div class="kpi-value">
-        ${kpi.current}/${kpi.target}
-      </div>
+  <div class="chart-center">
+    <div class="chart-percent">
+      ${Math.round(kpi.progress*100)}%
     </div>
+
+    <div class="chart-fraction">
+      ${kpi.current}/${kpi.target}
+    </div>
+  </div>
+</div>
+
+      
   `;
 
   donut(id,kpi.progress,"#dc2626");
@@ -92,37 +99,61 @@ projects.forEach((p,index)=>{
   projectGrid.innerHTML += `
     <div class="project-card">
 
-      <div class="project-title ${priorityClass}">
-        ${p.priority}：${p.name}
+  <div class="project-title ${priorityClass}">
+    ${p.priority}：${p.name}
+  </div>
+
+  <div class="project-charts">
+
+    <div class="project-metric">
+
+      <div class="project-label">
+        進捗率
       </div>
 
-      <div class="chart-container">
+      <div class="chart-container project-chart">
         <canvas id="${progressId}"></canvas>
-      </div>
 
-      <div class="metric">
-        進捗率 ${Math.round(p.progress*100)}%
-      </div>
+        <div class="chart-center">
+          <div class="chart-percent">
+            ${Math.round(p.progress*100)}%
+          </div>
 
-      <div class="metric">
-        ${p.taskDone}/${p.taskTotal}
-      </div>
+          <div class="chart-fraction">
+            ${p.taskDone}/${p.taskTotal}
+          </div>
+        </div>
 
-      <hr>
-
-      <div class="chart-container">
-        <canvas id="${importanceId}"></canvas>
-      </div>
-
-      <div class="metric">
-        重要度 ${Math.round(p.importance*100)}%
-      </div>
-
-      <div class="metric">
-        ${p.importanceDone}/${p.importanceTotal}
       </div>
 
     </div>
+
+    <div class="project-metric">
+
+      <div class="project-label">
+        重要度
+      </div>
+
+      <div class="chart-container project-chart">
+        <canvas id="${importanceId}"></canvas>
+
+        <div class="chart-center">
+          <div class="chart-percent">
+            ${Math.round(p.importance*100)}%
+          </div>
+
+          <div class="chart-fraction">
+            ${p.importanceDone}/${p.importanceTotal}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
   `;
 
   donut(progressId,p.progress,"#2563eb");
