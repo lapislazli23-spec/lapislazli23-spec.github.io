@@ -59,27 +59,21 @@ kpis.forEach((kpi,index)=>{
   const id=`kpi${index}`;
 
   kpiGrid.innerHTML += `
-    <div class="kpi-card">
-      <div class="kpi-title">${kpi.name}</div>
+    let kpiHtml = "";
 
-     <div class="chart-container kpi-chart">
-  <canvas id="${id}"></canvas>
+kpis.forEach((kpi,index)=>{
 
-  <div class="chart-center">
-    <div class="chart-percent">
-      ${Math.round(kpi.progress*100)}%
-    </div>
+  const id=`kpi${index}`;
 
-    <div class="chart-fraction">
-      ${kpi.current}/${kpi.target}
-    </div>
-  </div>
-</div>
-
-      
+  kpiHtml += `
+    （カードHTML）
   `;
+});
 
-  donut(id,kpi.progress,"#dc2626");
+kpiGrid.innerHTML = kpiHtml;
+
+kpis.forEach((kpi,index)=>{
+  donut(`kpi${index}`,kpi.progress,"#dc2626");
 });
 
 const projectGrid = document.getElementById("project-grid");
